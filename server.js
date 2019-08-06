@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const path = require('path');
 
 const { Schema } = mongoose;
 const bodyParser = require('body-parser');
@@ -11,7 +12,7 @@ const cors = require('cors');
 const app = express();
 
 // Basic Configuration
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true });
 mongoose.set('useCreateIndex', true);
@@ -19,6 +20,9 @@ app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'client/build')));
 
 // Database
 const db = mongoose.connection;
@@ -51,9 +55,9 @@ const randomUrl = () =>
 
 // URL Shortener Routes
 
-app.get('/', (req, res) => {
-  res.json({ status: 'working' });
-});
+// app.get('/', (req, res) => {
+//   res.json({ status: 'working' });
+// });
 
 // When URL gets submitted
 function checkDNS(dbURL, dnsURL, shortURL, req, res) {
@@ -66,7 +70,7 @@ function checkDNS(dbURL, dnsURL, shortURL, req, res) {
     });
     createURL.save(function(err) {
       if (err) return console.log(err);
-      console.log('Success!');
+      console.log('URL added to db');
     });
     return res.json({ original_url: dbURL, short_url: shortURL });
   });
